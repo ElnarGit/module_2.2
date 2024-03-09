@@ -3,6 +3,7 @@ package org.elnar.crudapp.repository.jdbc;
 import org.elnar.crudapp.enums.PostStatus;
 import org.elnar.crudapp.exception.JdbcRepositoryException;
 import org.elnar.crudapp.exception.NotFoundException;
+import org.elnar.crudapp.model.Label;
 import org.elnar.crudapp.model.Post;
 import org.elnar.crudapp.repository.PostRepository;
 import org.elnar.crudapp.util.DBUtils;
@@ -131,5 +132,48 @@ public class JdbcPostRepositoryImpl implements PostRepository {
 		}
 	}
 	
+	public void addLabelToPost(Long postId, Label label) {
+		String insertLabelSql = "INSERT INTO labels (name, label_status) VALUES (?, ?)";
+		try (PreparedStatement preparedStatement = DBUtils.getPreparedStatement(insertLabelSql)) {
+			preparedStatement.setString(1, label.getName());
+			preparedStatement.setString(2, label.getLabelStatus().name());
+			preparedStatement.executeUpdate();
+		} catch (SQLException e) {
+			throw new JdbcRepositoryException("Ошибка выполнения SQL-запроса", e);
+		}
+		
+		// получаем id только что сохраненной метки
+		Long labelId = label.getId();
+		if (labelId == null) {
+			labelId = getLastInsertedId();
+			label.setId(labelId);
+		}
+		
+		// добавляем связь между постом и меткой в таблице post_label
+		String insertPostLabelSql = "INSERT INTO post_label (post_id, label_id) VALUES (?, ?)";
+		try (PreparedStatement preparedStatement = DBUtils.getPreparedStatement(insertPostLabelSql)) {
+			preparedStatement.setLong(1, postId);
+			preparedStatement.setLong(2, labelId);
+			preparedStatement.executeUpdate();
+		} catch (SQLException e) {
+			throw new JdbcRepositoryException("Ошибка выполнения SQL-запроса", e);
+		}
+	}
 	
+	 /* getLastInsertedId используется для получения идентификатора
+	последней вставленной строки в таблице базы данных PostgreSQL */
+	
+	private Long getLastInsertedId() {
+		String sql = "SELECT currval(pg_get_serial_sequence('labels', 'id'))";
+		try (PreparedStatement preparedStatement = DBUtils.getPreparedStatement(sql);
+			 ResultSet resultSet = preparedStatement.executeQuery()) {
+			if (resultSet.next()) {
+				return resultSet.getLong(1);
+			} else {
+				throw new JdbcRepositoryException("Не удалось получить последний вставленный идентификатор");
+			}
+		} catch (SQLException e) {
+			throw new JdbcRepositoryException("Ошибка выполнения SQL-запроса", e);
+		}
+	}
 }

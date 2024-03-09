@@ -58,7 +58,8 @@ public class ApplicationContext {
 	
 	public void postRun() {
 		PostRepository postRepository = new JdbcPostRepositoryImpl();
-		PostService postService = new PostService(postRepository);
+		JdbcPostRepositoryImpl jdbcPostRepository = new JdbcPostRepositoryImpl();
+		PostService postService = new PostService(postRepository, jdbcPostRepository);
 		
 		PostController postController = new PostController(postService);
 		PostView postView = new PostView(postController);

@@ -1,20 +1,17 @@
 package org.elnar.crudapp.service;
 
 import lombok.RequiredArgsConstructor;
-import org.elnar.crudapp.exception.JdbcRepositoryException;
 import org.elnar.crudapp.model.Label;
 import org.elnar.crudapp.model.Post;
 import org.elnar.crudapp.repository.PostRepository;
-import org.elnar.crudapp.util.DBUtils;
+import org.elnar.crudapp.repository.jdbc.JdbcPostRepositoryImpl;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
 
 @RequiredArgsConstructor
 public class PostService {
 	private final PostRepository postRepository;
-	
+	private final JdbcPostRepositoryImpl jdbcPostRepository;
 	
 	public Post getPostById(Long id){
 		return postRepository.getById(id);
@@ -39,7 +36,7 @@ public class PostService {
 	public void addLabelToPost(Long postId, Label label){
 		Post post = postRepository.getById(postId);
 		post.addLabel(label);
-		postRepository.update(post);
-		
+		jdbcPostRepository.addLabelToPost(postId, label);
+		//postRepository.update(post);
 	}
 }
