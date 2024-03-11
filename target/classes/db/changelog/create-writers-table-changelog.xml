@@ -1,0 +1,19 @@
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="1" author="Elnar Saparov">
+        <createTable tableName="writers">
+
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="firstname" type="varchar(64)"/>
+            <column name="lastname" type="varchar(64)"/>
+            <column name="writer_status" type="varchar(15)"/>
+
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,22 @@
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="4" author="Elnar Saparov">
+        <createTable tableName="post_label">
+            <column name="post_id" type="bigint"/>
+            <column name="label_id" type="bigint"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="post_id"
+                                 baseTableName="post_label"
+                                 constraintName="fk_post_label_post_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="posts"/>
+        <addForeignKeyConstraint baseColumnNames="label_id"
+                                 baseTableName="post_label"
+                                 constraintName="fk_post_label_label_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="labels"/>
+    </changeSet>
+</databaseChangeLog>

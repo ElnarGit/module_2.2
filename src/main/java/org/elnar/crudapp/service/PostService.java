@@ -37,6 +37,5 @@ public class PostService {
 		Post post = postRepository.getById(postId);
 		post.addLabel(label);
 		jdbcPostRepository.addLabelToPost(postId, label);
-		//postRepository.update(post);
 	}
 }
