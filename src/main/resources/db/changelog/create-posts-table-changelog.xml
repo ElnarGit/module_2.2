@@ -14,8 +14,10 @@
             <column name="updated" type="TIMESTAMP"/>
             <column name="post_status" type="varchar(15)"/>
             <column name="writer_id" type="BIGINT">
-                <constraints references="writers(id)"/>
+                <constraints primaryKeyName="fk_posts_writers"
+                             foreignKeyName="fk_posts_writers" references="writers(id)"/>
             </column>
+
         </createTable>
     </changeSet>
 </databaseChangeLog>
