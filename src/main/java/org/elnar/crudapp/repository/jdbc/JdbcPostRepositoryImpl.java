@@ -81,6 +81,8 @@ public class JdbcPostRepositoryImpl implements PostRepository {
 				throw new JdbcRepositoryException("Создание поста не удалось, ни одна запись не была изменена.");
 			}
 			
+			/*эта строка кода обновляет идентификатор объекта Post на значение,
+			 сгенерированное базой данных при его вставке.*/
 			ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
 			if(generatedKeys.next()){
 				post.setId(generatedKeys.getLong(1));

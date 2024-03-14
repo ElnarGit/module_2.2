@@ -5,8 +5,10 @@
 
     <changeSet id="4" author="Elnar Saparov">
         <createTable tableName="post_label">
+
             <column name="post_id" type="bigint"/>
             <column name="label_id" type="bigint"/>
+
         </createTable>
         <addForeignKeyConstraint baseColumnNames="post_id"
                                  baseTableName="post_label"

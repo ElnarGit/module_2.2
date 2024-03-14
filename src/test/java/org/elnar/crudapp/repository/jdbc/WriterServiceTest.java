@@ -2,7 +2,7 @@ package org.elnar.crudapp.repository.jdbc;
 
 import org.elnar.crudapp.enums.WriterStatus;
 import org.elnar.crudapp.model.Writer;
-import org.elnar.crudapp.repository.WriterRepository;
+import org.elnar.crudapp.service.WriterService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -15,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
-public class JdbcWriterRepositoryImplTest {
+public class WriterServiceTest {
 	
 	@Mock
-	WriterRepository writerRepository = Mockito.mock(WriterRepository.class);
+	WriterService writerService = Mockito.mock(WriterService.class);
 	
 	private Writer testWriter;
 	
@@ -36,7 +36,7 @@ public class JdbcWriterRepositoryImplTest {
 	
 	@Test
 	void  testGetById(){
-		when(writerRepository.getById(1L)).thenReturn(testWriter);
+		when(writerService.getWriterById(1L)).thenReturn(testWriter);
 		
 		assertNotNull(testWriter);
 		assertEquals("Test", testWriter.getFirstname());
@@ -49,9 +49,9 @@ public class JdbcWriterRepositoryImplTest {
 		List<Writer> writers = new ArrayList<>();
 		writers.add(testWriter);
 		
-		when(writerRepository.getAll()).thenReturn(writers);
+		when(writerService.getAllWriters()).thenReturn(writers);
 		
-		List<Writer> result = writerRepository.getAll();
+		List<Writer> result = writerService.getAllWriters();
 		
 		assertNotNull(result);
 		assertEquals(1, result.size());
@@ -61,8 +61,8 @@ public class JdbcWriterRepositoryImplTest {
 	}
 	
 	@Test
-	 void testSaveWriter() {
-		when(writerRepository.save(testWriter)).thenReturn(testWriter);
+	void testSaveWriter() {
+		when(writerService.saveWriter(testWriter)).thenReturn(testWriter);
 		
 		assertNotNull(testWriter);
 		assertEquals("Test", testWriter.getFirstname());
@@ -80,7 +80,7 @@ public class JdbcWriterRepositoryImplTest {
 				.writerStatus(WriterStatus.ACTIVE)
 				.build();
 		
-		when(writerRepository.update(updatedWriter)).thenReturn(updatedWriter);
+		when(writerService.updateWriter(updatedWriter)).thenReturn(updatedWriter);
 		
 		assertNotNull(updatedWriter);
 		assertEquals("Updated Test", updatedWriter.getFirstname());
@@ -90,7 +90,7 @@ public class JdbcWriterRepositoryImplTest {
 	
 	@Test
 	void testDeleteWriter() {
-		writerRepository.deleteById(1L);
-		verify(writerRepository, times(1)).deleteById(1L);
+		writerService.deleteWriter(1L);
+		verify(writerService, times(1)).deleteWriter(1L);
 	}
 }
