@@ -9,7 +9,10 @@ import org.elnar.crudapp.repository.PostRepository;
 import org.elnar.crudapp.util.DBUtils;
 import org.elnar.crudapp.util.PostMapper;
 
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,9 +21,9 @@ public class JdbcPostRepositoryImpl implements PostRepository {
 	private static final String SELECT_BY_ID_SQL = "SELECT p.id, p.content, p.created, p.updated, p.post_status, " +
 			"w.id as writer_id, w.firstname, w.lastname, l.id as label_id, l.name " +
 			"from posts p " +
-			       "left join post_label pl on p.id = pl.post_id " +
-			       "left join labels l on pl.label_id = l.id " +
-			       "left join writers w on w.id = p.writer_id " +
+			"left join post_label pl on p.id = pl.post_id " +
+			"left join labels l on pl.label_id = l.id " +
+			"left join writers w on w.id = p.writer_id " +
 			"where p.id = ?";
 	
 	private static final String SELECT_ALL_SQL = "SELECT p.id, p.content, p.created, p.updated, p.post_status, " +
@@ -33,6 +36,9 @@ public class JdbcPostRepositoryImpl implements PostRepository {
 	private static final String INSERT_SQL = "INSERT INTO posts (content, created, updated, post_status, writer_id) VALUES (?, ?, ?, ?, ?)";
 	private static final String UPDATE_SQL = "UPDATE posts SET content = ?, updated = ?, post_status = ? WHERE id = ?";
 	private static final String DELETE_BY_ID_SQL = "UPDATE posts SET post_status = ? WHERE id = ?";
+	
+	private static final String INSERT_POST_LABEL_SQL = "INSERT INTO post_label (post_id, label_id) VALUES (?, ?)";
+	private static final String DELETE_POST_LABEL_SQL = "DELETE FROM post_label WHERE post_id = ?";
 	
 	@Override
 	public Post getById(Long id) {
@@ -73,7 +79,7 @@ public class JdbcPostRepositoryImpl implements PostRepository {
 			preparedStatement.setTimestamp(2, new Timestamp(post.getCreated().getTime()));
 			preparedStatement.setTimestamp(3, new Timestamp(post.getUpdated().getTime()));
 			preparedStatement.setString(4, post.getPostStatus().name());
-			preparedStatement.setObject(5, post.getWriterId().getId());
+			preparedStatement.setLong(5, post.getWriter().getId());
 			
 			int rowCount = preparedStatement.executeUpdate();
 			
@@ -89,6 +95,9 @@ public class JdbcPostRepositoryImpl implements PostRepository {
 			}else {
 				throw new JdbcRepositoryException("Создание поста не удалось, не удалось получить идентификатор.");
 			}
+			
+			addLabelToPost(post.getId(), post.getLabels());
+			
 		} catch (SQLException e) {
 			throw new JdbcRepositoryException("Ошибка выполнения SQL-запроса", e);
 		}
@@ -109,8 +118,8 @@ public class JdbcPostRepositoryImpl implements PostRepository {
 				throw new JdbcRepositoryException("Обновление поста не удалось, ни одна запись не была изменена.");
 			}
 			
-			updatePost = getById(updatePost.getId());
-			
+			deleteLabelsForPost(updatePost.getId());
+			addLabelToPost(updatePost.getId(), updatePost.getLabels());
 			
 		} catch (SQLException e) {
 			throw new JdbcRepositoryException("Ошибка выполнения SQL-запроса", e);
@@ -134,48 +143,38 @@ public class JdbcPostRepositoryImpl implements PostRepository {
 		}
 	}
 	
-	public void addLabelToPost(Long postId, Label label) {
-		String insertLabelSql = "INSERT INTO labels (name, label_status) VALUES (?, ?)";
-		try (PreparedStatement preparedStatement = DBUtils.getPreparedStatement(insertLabelSql)) {
-			preparedStatement.setString(1, label.getName());
-			preparedStatement.setString(2, label.getLabelStatus().name());
-			preparedStatement.executeUpdate();
-		} catch (SQLException e) {
-			throw new JdbcRepositoryException("Ошибка выполнения SQL-запроса", e);
+	////////////////////////////////////////////////////////////////////////////////////
+	
+	private void addLabelToPost(Long postId, List<Label> labels) {
+		if (labels == null) {
+			return; // Ничего не делаем, если список меток пустой
 		}
 		
-		// получаем id только что сохраненной метки
-		Long labelId = label.getId();
-		if (labelId == null) {
-			labelId = getLastInsertedId();
-			label.setId(labelId);
-		}
-		
-		// добавляем связь между постом и меткой в таблице post_label
-		String insertPostLabelSql = "INSERT INTO post_label (post_id, label_id) VALUES (?, ?)";
-		try (PreparedStatement preparedStatement = DBUtils.getPreparedStatement(insertPostLabelSql)) {
-			preparedStatement.setLong(1, postId);
-			preparedStatement.setLong(2, labelId);
-			preparedStatement.executeUpdate();
-		} catch (SQLException e) {
-			throw new JdbcRepositoryException("Ошибка выполнения SQL-запроса", e);
-		}
-	}
-	
-	 /* getLastInsertedId используется для получения идентификатора
-	последней вставленной строки в таблице базы данных PostgreSQL */
-	
-	private Long getLastInsertedId() {
-		String sql = "SELECT currval(pg_get_serial_sequence('labels', 'id'))";
-		try (PreparedStatement preparedStatement = DBUtils.getPreparedStatement(sql);
-			 ResultSet resultSet = preparedStatement.executeQuery()) {
-			if (resultSet.next()) {
-				return resultSet.getLong(1);
-			} else {
-				throw new JdbcRepositoryException("Не удалось получить последний вставленный идентификатор");
+		try (PreparedStatement preparedStatement = DBUtils.getPreparedStatement(INSERT_POST_LABEL_SQL)) {
+			for (Label label : labels) {
+				if (label.getId() != null) {
+					preparedStatement.setLong(1, postId);
+					preparedStatement.setLong(2, label.getId());
+					
+					preparedStatement.executeUpdate();
+				}
 			}
 		} catch (SQLException e) {
 			throw new JdbcRepositoryException("Ошибка выполнения SQL-запроса", e);
 		}
 	}
+	
+	private void deleteLabelsForPost(Long postId) {
+		try (PreparedStatement preparedStatement = DBUtils.getPreparedStatement(DELETE_POST_LABEL_SQL)) {
+			preparedStatement.setLong(1, postId);
+			
+			preparedStatement.executeUpdate();
+		} catch (SQLException e) {
+			throw new JdbcRepositoryException("Ошибка выполнения SQL-запроса", e);
+		}
+	}
 }
+	
+	
+	
+

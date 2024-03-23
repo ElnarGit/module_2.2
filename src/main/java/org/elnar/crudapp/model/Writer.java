@@ -5,11 +5,10 @@ import org.elnar.crudapp.enums.WriterStatus;
 
 import java.util.List;
 
-@Getter
-@Setter
-@ToString
+@Data
 @Builder
-@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 public class Writer {
 	private Long id;
 	private String firstname;

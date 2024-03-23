@@ -2,11 +2,12 @@ package org.elnar.crudapp.repository.jdbc;
 
 import org.elnar.crudapp.enums.PostStatus;
 import org.elnar.crudapp.model.Post;
+import org.elnar.crudapp.repository.PostRepository;
 import org.elnar.crudapp.service.PostService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,13 +20,19 @@ import static org.mockito.Mockito.*;
 public class PostServiceTest {
 	
 	@Mock
-	PostService postService = Mockito.mock(PostService.class);
+	private PostRepository postRepository;
+	
+	private PostService postService;
 	
 	private Post testPost;
 	
 	
 	@BeforeEach
 	void setUp()  {
+		MockitoAnnotations.openMocks(this);
+		
+		postService = new PostService(postRepository);
+		
 		testPost = Post.builder()
 				.id(1L)
 				.content("Test content")
@@ -37,11 +44,13 @@ public class PostServiceTest {
 	
 	@Test
 	void  testGetById(){
-		when(postService.getPostById(1L)).thenReturn(testPost);
+		when(postRepository.getById(1L)).thenReturn(testPost);
 		
-		assertNotNull(testPost);
-		assertEquals("Test content", testPost.getContent());
-		assertEquals(PostStatus.ACTIVE, testPost.getPostStatus());
+		Post post = postService.getPostById(1L);
+		
+		assertNotNull(post);
+		assertEquals("Test content", post.getContent());
+		assertEquals(PostStatus.ACTIVE, post.getPostStatus());
 	}
 	
 	@Test
@@ -49,7 +58,7 @@ public class PostServiceTest {
 		List<Post> posts = new ArrayList<>();
 		posts.add(testPost);
 		
-		when(postService.getAllPosts()).thenReturn(posts);
+		when(postRepository.getAll()).thenReturn(posts);
 		
 		List<Post> result = postService.getAllPosts();
 		
@@ -61,11 +70,15 @@ public class PostServiceTest {
 	
 	@Test
 	void testSavePost() {
-		when(postService.savePost(testPost)).thenReturn(testPost);
+		when(postRepository.save(testPost)).thenReturn(testPost);
 		
-		assertNotNull(testPost);
-		assertEquals("Test content", testPost.getContent());
-		assertEquals(PostStatus.ACTIVE, testPost.getPostStatus());
+		Post post = postService.savePost(testPost);
+		
+		assertNotNull(post);
+		assertEquals("Test content", post.getContent());
+		assertEquals(PostStatus.ACTIVE, post.getPostStatus());
+		
+		verify(postRepository, times(1)).save(testPost);
 	}
 	
 	@Test
@@ -77,16 +90,20 @@ public class PostServiceTest {
 				.postStatus(PostStatus.ACTIVE)
 				.build();
 		
-		when(postService.updatePost(updatedPost)).thenReturn(updatedPost);
+		when(postRepository.update(updatedPost)).thenReturn(updatedPost);
 		
-		assertNotNull(updatedPost);
-		assertEquals("Test content updated", updatedPost.getContent());
-		assertEquals(PostStatus.ACTIVE, updatedPost.getPostStatus());
+		Post post = postService.updatePost(updatedPost);
+		
+		assertNotNull(post);
+		assertEquals("Test content updated", post.getContent());
+		assertEquals(PostStatus.ACTIVE, post.getPostStatus());
+		
+		verify(postRepository, times(1)).update(updatedPost);
 	}
 	
 	@Test
 	void testDeletePost() {
 		postService.deletePost(1L);
-		verify(postService, times(1)).deletePost(1L);
+		verify(postRepository, times(1)).deleteById(1L);
 	}
 }

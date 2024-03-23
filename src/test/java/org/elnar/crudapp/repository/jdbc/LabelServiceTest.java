@@ -2,11 +2,12 @@ package org.elnar.crudapp.repository.jdbc;
 
 import org.elnar.crudapp.enums.LabelStatus;
 import org.elnar.crudapp.model.Label;
+import org.elnar.crudapp.repository.LabelRepository;
 import org.elnar.crudapp.service.LabelService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,13 +19,19 @@ import static org.mockito.Mockito.*;
 public class LabelServiceTest {
 	
 	@Mock
-	LabelService labelService = Mockito.mock(LabelService.class);
+	private LabelRepository labelRepository;
+	
+	private LabelService labelService;
 	
 	private Label testLabel;
 	
 	
 	@BeforeEach
 	void setUp()  {
+		MockitoAnnotations.openMocks(this);
+		
+		labelService = new LabelService(labelRepository);
+		
 		testLabel = Label.builder()
 				.id(1L)
 				.name("Test name")
@@ -34,11 +41,13 @@ public class LabelServiceTest {
 	
 	@Test
 	void  testGetById(){
-		when(labelService.getLabelById(1L)).thenReturn(testLabel);
+		when(labelRepository.getById(1L)).thenReturn(testLabel);
 		
-		assertNotNull(testLabel);
-		assertEquals("Test name", testLabel.getName());
-		assertEquals(LabelStatus.ACTIVE, testLabel.getLabelStatus());
+		Label label = labelService.getLabelById(1L);
+		
+		assertNotNull(label);
+		assertEquals("Test name", label.getName());
+		assertEquals(LabelStatus.ACTIVE, label.getLabelStatus());
 	}
 	
 	@Test
@@ -46,7 +55,7 @@ public class LabelServiceTest {
 		List<Label> labels = new ArrayList<>();
 		labels.add(testLabel);
 		
-		when(labelService.getAllLabels()).thenReturn(labels);
+		when(labelRepository.getAll()).thenReturn(labels);
 		
 		List<Label> result = labelService.getAllLabels();
 		
@@ -58,11 +67,15 @@ public class LabelServiceTest {
 	
 	@Test
 	void testSaveLabel() {
-		when(labelService.savelabel(testLabel)).thenReturn(testLabel);
+		when(labelRepository.save(testLabel)).thenReturn(testLabel);
 		
-		assertNotNull(testLabel);
-		assertEquals("Test name", testLabel.getName());
-		assertEquals(LabelStatus.ACTIVE, testLabel.getLabelStatus());
+		Label label = labelService.savelabel(testLabel);
+		
+		assertNotNull(label);
+		assertEquals("Test name", label.getName());
+		assertEquals(LabelStatus.ACTIVE, label.getLabelStatus());
+		
+		verify(labelRepository, times(1)).save(testLabel);
 	}
 	
 	@Test
@@ -73,16 +86,20 @@ public class LabelServiceTest {
 				.labelStatus(LabelStatus.ACTIVE)
 				.build();
 		
-		when(labelService.updateLabel(updatedLabel)).thenReturn(updatedLabel);
+		when(labelRepository.update(updatedLabel)).thenReturn(updatedLabel);
 		
-		assertNotNull(updatedLabel);
-		assertEquals("Test name updated", updatedLabel.getName());
-		assertEquals(LabelStatus.ACTIVE, updatedLabel.getLabelStatus());
+		Label label = labelService.updateLabel(updatedLabel);
+		
+		assertNotNull(label);
+		assertEquals("Test name updated", label.getName());
+		assertEquals(LabelStatus.ACTIVE, label.getLabelStatus());
+		
+		verify(labelRepository, times(1)).update(updatedLabel);
 	}
 	
 	@Test
 	void testDeleteLabel() {
 		labelService.deleteLabel(1L);
-		verify(labelService, times(1)).deleteLabel(1L);
+		verify(labelRepository, times(1)).deleteById(1L);
 	}
 }

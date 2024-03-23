@@ -85,12 +85,10 @@ public class JdbcWriterRepositoryImpl implements WriterRepository {
 			preparedStatement.setLong(4, updateWriter.getId());
 			
 			int rowCount = preparedStatement.executeUpdate();
+			
 			if (rowCount == 0) {
 				throw new JdbcRepositoryException("Обновление писателя не удалось, ни одна запись не была изменена.");
 			}
-			
-			updateWriter = getById(updateWriter.getId());
-			
 		} catch (SQLException e) {
 			throw new JdbcRepositoryException("Ошибка выполнения SQL-запроса", e);
 		}

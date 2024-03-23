@@ -1,6 +1,9 @@
 package org.elnar.crudapp;
 
+import liquibase.Contexts;
+import liquibase.LabelExpression;
 import liquibase.Liquibase;
+import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.ClassLoaderResourceAccessor;
@@ -24,13 +27,12 @@ public class DatabaseMigrator {
 		
 		Connection connection = DriverManager.getConnection(url, username, password);
 		
-		DatabaseFactory databaseFactory = DatabaseFactory.getInstance();
-		liquibase.database.Database database =
-				databaseFactory.findCorrectDatabaseImplementation(new JdbcConnection(connection));
+		Database database = DatabaseFactory.getInstance()
+				.findCorrectDatabaseImplementation(new JdbcConnection(connection));
 		
-		Liquibase liquibase = new Liquibase("db/changelog/db.changelog-master.xml",
+		Liquibase liquibase = new liquibase.Liquibase("db/changelog/db.changelog-master.xml",
 				new ClassLoaderResourceAccessor(), database);
 		
-		liquibase.update();
+		liquibase.update(new Contexts(), new LabelExpression());
 	}
 }

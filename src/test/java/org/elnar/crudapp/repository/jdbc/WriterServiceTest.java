@@ -2,11 +2,12 @@ package org.elnar.crudapp.repository.jdbc;
 
 import org.elnar.crudapp.enums.WriterStatus;
 import org.elnar.crudapp.model.Writer;
+import org.elnar.crudapp.repository.WriterRepository;
 import org.elnar.crudapp.service.WriterService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,13 +19,18 @@ import static org.mockito.Mockito.*;
 public class WriterServiceTest {
 	
 	@Mock
-	WriterService writerService = Mockito.mock(WriterService.class);
+	private WriterRepository writerRepository;
+	
+	private WriterService writerService;
 	
 	private Writer testWriter;
 	
-	
 	@BeforeEach
-	void setUp()  {
+	void setUp() {
+		MockitoAnnotations.openMocks(this);
+		
+		writerService = new WriterService(writerRepository);
+		
 		testWriter = Writer.builder()
 				.id(1L)
 				.firstname("Test")
@@ -35,13 +41,15 @@ public class WriterServiceTest {
 	}
 	
 	@Test
-	void  testGetById(){
-		when(writerService.getWriterById(1L)).thenReturn(testWriter);
+	void testGetById() {
+		when(writerRepository.getById(1L)).thenReturn(testWriter);
 		
-		assertNotNull(testWriter);
-		assertEquals("Test", testWriter.getFirstname());
-		assertEquals("Test", testWriter.getLastname());
-		assertEquals(WriterStatus.ACTIVE, testWriter.getWriterStatus());
+		Writer writer = writerService.getWriterById(1L);
+		
+		assertNotNull(writer);
+		assertEquals("Test", writer.getFirstname());
+		assertEquals("Test", writer.getLastname());
+		assertEquals(WriterStatus.ACTIVE, writer.getWriterStatus());
 	}
 	
 	@Test
@@ -49,7 +57,7 @@ public class WriterServiceTest {
 		List<Writer> writers = new ArrayList<>();
 		writers.add(testWriter);
 		
-		when(writerService.getAllWriters()).thenReturn(writers);
+		when(writerRepository.getAll()).thenReturn(writers);
 		
 		List<Writer> result = writerService.getAllWriters();
 		
@@ -62,12 +70,16 @@ public class WriterServiceTest {
 	
 	@Test
 	void testSaveWriter() {
-		when(writerService.saveWriter(testWriter)).thenReturn(testWriter);
+		when(writerRepository.save(testWriter)).thenReturn(testWriter);
 		
-		assertNotNull(testWriter);
-		assertEquals("Test", testWriter.getFirstname());
-		assertEquals("Test", testWriter.getLastname());
-		assertEquals(WriterStatus.ACTIVE, testWriter.getWriterStatus());
+		Writer writer = writerService.saveWriter(testWriter);
+		
+		assertNotNull(writer);
+		assertEquals("Test", writer.getFirstname());
+		assertEquals("Test", writer.getLastname());
+		assertEquals(WriterStatus.ACTIVE, writer.getWriterStatus());
+		
+		verify(writerRepository, times(1)).save(testWriter);
 	}
 	
 	@Test
@@ -80,17 +92,21 @@ public class WriterServiceTest {
 				.writerStatus(WriterStatus.ACTIVE)
 				.build();
 		
-		when(writerService.updateWriter(updatedWriter)).thenReturn(updatedWriter);
+		when(writerRepository.update(updatedWriter)).thenReturn(updatedWriter);
 		
-		assertNotNull(updatedWriter);
-		assertEquals("Updated Test", updatedWriter.getFirstname());
-		assertEquals("Updated Test", updatedWriter.getLastname());
-		assertEquals(WriterStatus.ACTIVE, updatedWriter.getWriterStatus());
+		Writer writer = writerService.updateWriter(updatedWriter);
+		
+		assertNotNull(writer);
+		assertEquals("Updated Test", writer.getFirstname());
+		assertEquals("Updated Test", writer.getLastname());
+		assertEquals(WriterStatus.ACTIVE, writer.getWriterStatus());
+		
+		verify(writerRepository, times(1)).update(updatedWriter);
 	}
 	
 	@Test
 	void testDeleteWriter() {
 		writerService.deleteWriter(1L);
-		verify(writerService, times(1)).deleteWriter(1L);
+		verify(writerRepository, times(1)).deleteById(1L);
 	}
 }

@@ -17,85 +17,78 @@ public class LabelView {
 		boolean running = true;
 		
 		while (running){
-			System.out.println("1. Create Label");
-			System.out.println("2. Get Label by ID");
-			System.out.println("3. Get All Labels");
-			System.out.println("4. Update Label");
-			System.out.println("5. Delete Label");
-			System.out.println("0. Exit");
-			System.out.print("Select an option: ");
+			System.out.println("1. Создать метку");
+			System.out.println("2. Получить метку по ID");
+			System.out.println("3. Получить все метки");
+			System.out.println("4. Обновить метку");
+			System.out.println("5. Удалить метку");
+			System.out.println("0. Выйти");
+			System.out.print("Выберите опцию: ");
 			
 			int option = scanner.nextInt();
 			scanner.nextLine();
 			
-			switch (option){
-				case 1 :
-					createLabel();
-					break;
-				case 2:
-					getLabelById();
-					break;
-				case 3:
-					getAllLabels();
-					break;
-				case 4:
-					updateLabel();
-					break;
-				case 5:
-					deleteLabel();
-					break;
-				case 0:
-					running = false;
-					break;
-				default:
-					System.out.println("Invalid option. Please try again.");
-					break;
+			switch (option) {
+				case 1 -> createLabel();
+				case 2 -> getLabelById();
+				case 3 -> getAllLabels();
+				case 4 -> updateLabel();
+				case 5 -> deleteLabel();
+				case 0 -> running = false;
+				default -> System.out.println("Неверная опция. Пожалуйста, попробуйте еще раз.");
 			}
 		}
 	}
 	
-	public void createLabel(){
-		System.out.println("Enter name: ");
+	private void createLabel(){
+		System.out.println("Введите название: ");
 		String name = scanner.nextLine();
 		
-		LabelStatus labelStatus = LabelStatus.ACTIVE;
+		Label createdLabel = Label.builder()
+				.name(name)
+				.labelStatus(LabelStatus.ACTIVE)
+				.build();
 		
-		labelController.createLabel(name, labelStatus);
-		System.out.println("Label created");
+		labelController.createLabel(createdLabel);
+		System.out.println("Метка создана");
 	}
 	
-	public void getLabelById(){
-		System.out.println("Enter Label id: ");
-		long id = scanner.nextLong();
+	private void getLabelById(){
+		System.out.println("Введите ID метки: ");
+		Long id = scanner.nextLong();
 		Label label = labelController.getLabelById(id);
-		System.out.println("Label found: " + label);
+		System.out.println("Найденная метка: " + label);
 	}
 	
-	public void getAllLabels(){
+	private void getAllLabels(){
 		List<Label> labels = labelController.getAllLabels();
 		for(Label label : labels){
 			System.out.println(label);
 		}
 	}
 	
-	public void updateLabel(){
-		System.out.println("Enter Label id to update: ");
+	private void updateLabel(){
+		System.out.println("Введите ID метки для обновления: ");
 		Long id = scanner.nextLong();
 		scanner.nextLine();
 		
-		System.out.println("Enter update name: ");
+		System.out.println("Введите обновленное название: ");
 		String name = scanner.nextLine();
 		
-		LabelStatus labelStatus = LabelStatus.ACTIVE;
+		Label updatedLabel = Label.builder()
+				.id(id)
+				.name(name)
+				.labelStatus(LabelStatus.ACTIVE)
+				.build();
 		
-		labelController.updateLabel(id, name, labelStatus);
-		System.out.println("Label updated");
+		labelController.updateLabel(updatedLabel);
+		System.out.println("Метка обновлена");
 	}
 	
-	public void deleteLabel(){
-		System.out.print("Enter label ID to delete: ");
+	private void deleteLabel(){
+		System.out.print("Введите ID метки для удаления: ");
 		Long id = scanner.nextLong();
 		labelController.deleteLabel(id);
-		System.out.println("Label deleted.");
+		System.out.println("Метка удалена.");
 	}
 }

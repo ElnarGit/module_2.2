@@ -3,11 +3,10 @@ package org.elnar.crudapp.model;
 import lombok.*;
 import org.elnar.crudapp.enums.LabelStatus;
 
-@Getter
-@Setter
-@ToString
+@Data
 @Builder
-@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 public class Label {
 	private Long id;
 	private String name;

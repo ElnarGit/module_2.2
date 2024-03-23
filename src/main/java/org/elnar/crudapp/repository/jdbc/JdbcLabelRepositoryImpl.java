@@ -88,8 +88,6 @@ public class JdbcLabelRepositoryImpl implements LabelRepository {
 				throw new JdbcRepositoryException("Обновление метки не удалось, ни одна запись не была изменена.");
 			}
 			
-			updateLabel = getById(updateLabel.getId());
-			
 		} catch (SQLException e) {
 			throw new JdbcRepositoryException("Ошибка выполнения SQL-запроса", e);
 		}

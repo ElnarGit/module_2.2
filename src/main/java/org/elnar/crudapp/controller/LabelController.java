@@ -1,7 +1,6 @@
 package org.elnar.crudapp.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.elnar.crudapp.enums.LabelStatus;
 import org.elnar.crudapp.model.Label;
 import org.elnar.crudapp.service.LabelService;
 
@@ -19,22 +18,11 @@ public class LabelController {
 		return labelService.getAllLabels();
 	}
 	
-	public void createLabel(String name, LabelStatus labelStatus){
-		Label newLabel = Label.builder()
-				.name(name)
-				.labelStatus(labelStatus)
-				.build();
-		
-		labelService.savelabel(newLabel);
+	public void createLabel(Label label){
+		labelService.savelabel(label);
 	}
 	
-	public void updateLabel(Long id, String name, LabelStatus labelStatus){
-		Label updateLabel = Label.builder()
-				.id(id)
-				.name(name)
-				.labelStatus(labelStatus)
-				.build();
-		
+	public void updateLabel(Label updateLabel){
 		labelService.updateLabel(updateLabel);
 	}
 	

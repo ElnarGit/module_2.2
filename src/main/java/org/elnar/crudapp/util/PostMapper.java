@@ -22,12 +22,12 @@ public class PostMapper {
 				.created(resultSet.getTimestamp("created"))
 				.updated(resultSet.getTimestamp("updated"))
 				.postStatus(PostStatus.valueOf(resultSet.getString("post_status")))
-				.writerId(Writer.builder().id(resultSet.getLong("writer_id")).build())
+				.writer(Writer.builder().id(resultSet.getLong("writer_id")).build())
 				.labels(labels)
 				.build();
 	}
 	
-	
+	/*получаем список меток, связанных с определенным постом по его идентификатору */
 	private static List<Label> getLabelsForPost(Long postId) {
 		String sql = "SELECT l.* FROM labels l " +
 				"INNER JOIN post_label pl ON l.id = pl.label_id " +

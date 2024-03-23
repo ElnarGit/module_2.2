@@ -1,17 +1,18 @@
 package org.elnar.crudapp.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.elnar.crudapp.enums.PostStatus;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@Getter
-@Setter
-@ToString
-@EqualsAndHashCode
+@Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Post {
 	private Long id;
 	private String content;
@@ -19,12 +20,5 @@ public class Post {
 	private Date updated;
 	private List<Label> labels;
 	private PostStatus postStatus;
-	private Writer writerId;
-	
-	public void addLabel(Label label){
-		if (labels == null) {
-			labels = new ArrayList<>();
-		}
-		labels.add(label);
-	}
+	private Writer writer;
 }

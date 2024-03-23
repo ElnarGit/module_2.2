@@ -19,61 +19,50 @@ import org.elnar.crudapp.view.WriterView;
 import java.util.Scanner;
 
 public class ApplicationContext {
-	Scanner scanner = new Scanner(System.in);
+	private final WriterRepository writerRepository = new JdbcWriterRepositoryImpl();
+	private final PostRepository postRepository = new JdbcPostRepositoryImpl();
+	private final LabelRepository labelRepository = new JdbcLabelRepositoryImpl();
+	
+	private final WriterService writerService = new WriterService(writerRepository);
+	private final PostService postService = new PostService(postRepository);
+	private final LabelService labelService = new LabelService(labelRepository);
+	
+	private final WriterController writerController = new WriterController(writerService);
+	private final PostController postController = new PostController(postService);
+	private final LabelController labelController = new LabelController(labelService);
+	
+	private final WriterView writerView = new WriterView(writerController, postController);
+	private final PostView postView = new PostView(postController, writerController, labelController);
+	private final LabelView labelView = new LabelView(labelController);
+	
+	private final Scanner scanner = new Scanner(System.in);
 	
 	public void start() {
-		System.out.println("Select an option:");
-		System.out.println("1. Writer");
-		System.out.println("2. Post");
-		System.out.println("3. Label");
+		System.out.println("Выберите опцию:");
+		System.out.println("1. Писатель");
+		System.out.println("2. Пост");
+		System.out.println("3. Метка");
 		
 		int choice = scanner.nextInt();
 		scanner.nextLine();
 		
 		switch (choice) {
-			case 1:
-				writerRun();
-				break;
-			case 2:
-				postRun();
-				break;
-			case 3:
-				labelRun();
-				break;
-			default:
-				System.out.println("Invalid choice");
+			case 1 -> writerRun();
+			case 2 -> postRun();
+			case 3 -> labelRun();
+			default -> System.out.println("Неверный выбор");
 		}
 	}
 	
-	public void writerRun() {
-		WriterRepository writerRepository = new JdbcWriterRepositoryImpl();
-		PostRepository postRepository = new JdbcPostRepositoryImpl();
-		
-		WriterService writerService = new WriterService(writerRepository, postRepository);
-		
-		WriterController writerController = new WriterController(writerService);
-		WriterView writerView = new WriterView(writerController);
+	private void writerRun() {
 		writerView.run();
 	}
 	
-	public void postRun() {
-		PostRepository postRepository = new JdbcPostRepositoryImpl();
-		JdbcPostRepositoryImpl jdbcPostRepository = new JdbcPostRepositoryImpl();
-		PostService postService = new PostService(postRepository, jdbcPostRepository);
-		
-		PostController postController = new PostController(postService);
-		PostView postView = new PostView(postController);
+	private void postRun() {
 		postView.run();
 	}
 	
-	public void labelRun() {
-		LabelRepository labelRepository = new JdbcLabelRepositoryImpl();
-		
-		LabelService labelService = new LabelService(labelRepository);
-		
-		LabelController labelController = new LabelController(labelService);
-		LabelView labelView = new LabelView(labelController);
+	private void labelRun() {
 		labelView.run();
 	}
-	
 }

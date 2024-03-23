@@ -1,6 +1,7 @@
 package org.elnar.crudapp.view;
 
 import lombok.RequiredArgsConstructor;
+import org.elnar.crudapp.controller.PostController;
 import org.elnar.crudapp.controller.WriterController;
 import org.elnar.crudapp.enums.PostStatus;
 import org.elnar.crudapp.enums.WriterStatus;
@@ -15,127 +16,119 @@ import java.util.Scanner;
 @RequiredArgsConstructor
 public class WriterView {
 	private final WriterController writerController;
+	private final PostController postController;
+	
 	private final Scanner scanner = new Scanner(System.in);
 	
 	public void run(){
 		boolean running = true;
 		
 		while (running){
-			System.out.println("1. Create Writer");
-			System.out.println("2. Get Writer by ID");
-			System.out.println("3. Get All Writers");
-			System.out.println("4. Update Writer");
-			System.out.println("5. Delete Writer");
-			System.out.println("6. Add post to Writer");
-			System.out.println("0. Exit");
-			System.out.print("Select an option: ");
+			System.out.println("1. Создать писателя");
+			System.out.println("2. Получить писателя по ID");
+			System.out.println("3. Получить всех писателей");
+			System.out.println("4. Обновить информацию о писателе");
+			System.out.println("5. Удалить писателя");
+			System.out.println("0. Выйти");
+			System.out.print("Выберите опцию: ");
 			
 			int option = scanner.nextInt();
 			scanner.nextLine();
 			
-			switch (option){
-				case 1 :
-					createWriter();
-					break;
-				case 2:
-					getWriterById();
-					break;
-				case 3:
-					getAllWriters();
-					break;
-				case 4:
-					updateWriter();
-					break;
-				case 5:
-					deleteWriter();
-					break;
-				case 6:
-					addPostToWriter();
-					break;
-				case 0:
-					running = false;
-					break;
-				default:
-					System.out.println("Invalid option. Please try again.");
-					break;
+			switch (option) {
+				case 1 -> createWriter();
+				case 2 -> getWriterById();
+				case 3 -> getAllWriters();
+				case 4 -> updateWriter();
+				case 5 -> deleteWriter();
+				case 0 -> running = false;
+				default -> System.out.println("Неверная опция. Пожалуйста, попробуйте еще раз.");
 			}
 		}
 	}
 	
-	public void createWriter(){
-		System.out.println("Enter firstname: ");
+	private void createWriter(){
+		System.out.println("Введите имя: ");
 		String firstname = scanner.nextLine();
 		
-		System.out.println("Enter lastname: ");
+		System.out.println("Введите фамилию: ");
 		String lastname = scanner.nextLine();
 		
-		List<Post> posts = new ArrayList<>();
+		Writer createWriter = Writer.builder()
+				.firstname(firstname)
+				.lastname(lastname)
+				.writerStatus(WriterStatus.ACTIVE)
+				.posts(new ArrayList<>())
+				.build();
 		
-		WriterStatus writerStatus = WriterStatus.ACTIVE;
+		writerController.saveWriter(createWriter);
+		System.out.println("Писатель создан");
 		
-		writerController.saveWriter(firstname, lastname, posts, writerStatus);
-		System.out.println("Writer created");
+		System.out.println("Хотите добавить посты для писателя? (да/нет)");
+		String answer = scanner.nextLine();
+		while ("да".equalsIgnoreCase(answer)) {
+			Post post = createPostForWriter(createWriter);
+			postController.createdPost(post);
+			
+			System.out.println("Хотите добавить еще записи для писателя? (да/нет)");
+			answer = scanner.nextLine();
+		}
 	}
 	
-	public void getWriterById(){
-		System.out.println("Enter Writer id: ");
+	private void getWriterById(){
+		System.out.println("Введите ID писателя: ");
 		Long id = scanner.nextLong();
 		Writer writer = writerController.getWriterById(id);
-		System.out.println("Writer found: " + writer);
+		System.out.println("Найден писатель: " + writer);
 	}
 	
-	public void getAllWriters(){
+	private void getAllWriters(){
 		List<Writer> writers = writerController.getAllWriters();
 		for(Writer writer : writers){
 			System.out.println(writer);
 		}
 	}
 	
-	public void updateWriter(){
-		System.out.println("Enter Writer id to update: ");
+	private void updateWriter(){
+		System.out.println("Введите ID писателя для обновления: ");
 		Long id = scanner.nextLong();
 		scanner.nextLine();
 		
-		System.out.println("Enter update firstname: ");
+		System.out.println("Введите новое имя: ");
 		String firstname = scanner.nextLine();
 		
-		System.out.println("Enter update lastname: ");
+		System.out.println("Введите новую фамилию: ");
 		String lastname = scanner.nextLine();
 		
-		List<Post> posts = new ArrayList<>();
+		Writer updatedWriter = Writer.builder()
+				.id(id)
+				.firstname(firstname)
+				.lastname(lastname)
+				.writerStatus(WriterStatus.ACTIVE)
+				.posts(new ArrayList<>())
+				.build();
 		
-		WriterStatus writerStatus = WriterStatus.ACTIVE;
-		
-		writerController.updateWriter(id, firstname, lastname, posts, writerStatus);
-		System.out.println("Writer updated");
+		writerController.updateWriter(updatedWriter);
+		System.out.println("Писатель обновлен");
 	}
 	
-	public void deleteWriter(){
-		System.out.print("Enter writer ID to delete: ");
+	private void deleteWriter(){
+		System.out.print("Введите ID писателя для удаления: ");
 		Long id = scanner.nextLong();
 		writerController.deleteWriterById(id);
-		System.out.println("Writer deleted.");
+		System.out.println("Писатель удален.");
 	}
 	
-	public void addPostToWriter() {
-		System.out.print("Enter writer ID to add post: ");
-		Long writerId = scanner.nextLong();
-		scanner.nextLine();
-		
-		Writer writer = writerController.getWriterById(writerId);
-		
-		System.out.print("Enter post content: ");
+	private Post createPostForWriter(Writer writer) {
+		System.out.println("Введите содержание поста: ");
 		String content = scanner.nextLine();
 		
-		Post newPost = Post.builder()
+		return Post.builder()
 				.content(content)
 				.created(new Date())
 				.updated(new Date())
 				.postStatus(PostStatus.ACTIVE)
-				.writerId(writer)
+				.writer(writer)
 				.build();
-		
-		writerController.addPostToWriter(writerId, newPost);
-		System.out.println("Post added to writer.");
 	}
 }
