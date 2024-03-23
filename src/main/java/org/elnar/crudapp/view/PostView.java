@@ -71,8 +71,22 @@ public class PostView {
 			
 			postController.createdPost(post);
 			System.out.println("Пост сохранен.");
-		} else {
-			System.out.println("Писатель не выбран. Создание поста отменено.");
+		}
+	}
+	
+	private void getPostById() {
+		System.out.print("Введите ID поста: ");
+		Long postId = scanner.nextLong();
+		scanner.nextLine();
+		
+		Post post = postController.getPostById(postId);
+		System.out.println("Найден пост: " + post);
+	}
+	
+	private void getAllPosts() {
+		List<Post> posts = postController.getAllPosts();
+		for (Post post : posts) {
+			System.out.println(post);
 		}
 	}
 	
@@ -135,23 +149,6 @@ public class PostView {
 		
 		postController.updatePost(existingPost);
 		System.out.println("Пост обновлен.");
-	}
-	
-	
-	private void getPostById() {
-		System.out.print("Введите ID поста: ");
-		Long postId = scanner.nextLong();
-		scanner.nextLine();
-		
-		Post post = postController.getPostById(postId);
-		System.out.println("Найден пост: " + post);
-	}
-	
-	private void getAllPosts() {
-		List<Post> posts = postController.getAllPosts();
-		for (Post post : posts) {
-			System.out.println(post);
-		}
 	}
 	
 	private void deletePost() {
