@@ -119,6 +119,9 @@ public class WriterView {
 		System.out.println("Писатель удален.");
 	}
 	
+	
+	/////////////////////////////////////////////////////////////////////////////
+	
 	private Post createPostForWriter(Writer writer) {
 		System.out.println("Введите содержание поста: ");
 		String content = scanner.nextLine();

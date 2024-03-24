@@ -56,6 +56,7 @@ public class PostView {
 			String content = scanner.nextLine();
 			
 			List<Label> labels = getLabels();
+			
 			for (Label label : labels) {
 				labelController.createLabel(label);
 			}
@@ -102,6 +103,8 @@ public class PostView {
 		
 		List<Label> newLabels = getLabels();
 		
+		/*Эта строка кода преобразует список меток existingPost.getLabels() в карту existingLabelMap,
+		 где ключом является идентификатор метки, а значением - объект метки.*/
 		Map<Long, Label> existingLabelMap = existingPost.getLabels().stream()
 				.collect(Collectors.toMap(Label::getId, label -> label));
 		
@@ -110,26 +113,7 @@ public class PostView {
 			System.out.println(label.getId() + ". " + label.getName());
 		}
 		
-		List<Label> labelsToRemove = new ArrayList<>();
-		
-		System.out.println("Хотите удалить какие-либо метки? (да/нет)");
-		if ("да".equalsIgnoreCase(scanner.nextLine())) {
-			boolean removeMoreLabels = true;
-			while (removeMoreLabels) {
-				System.out.println("Введите ID метки, которую хотите удалить:");
-				Long labelIdToRemove = scanner.nextLong();
-				scanner.nextLine();
-				
-				if (existingLabelMap.containsKey(labelIdToRemove)) {
-					labelsToRemove.add(existingLabelMap.remove(labelIdToRemove));
-				} else {
-					System.out.println("Метка с ID " + labelIdToRemove + " не найдена.");
-				}
-				
-				System.out.println("Хотите удалить еще какие-либо метки? (да/нет)");
-				removeMoreLabels = "да".equalsIgnoreCase(scanner.nextLine());
-			}
-		}
+		List<Label> labelsToRemove = getLabelsToRemove(existingPost.getLabels());
 		
 		for (Label label : labelsToRemove) {
 			labelController.deleteLabel(label.getId());
@@ -141,11 +125,18 @@ public class PostView {
 			}
 		}
 		
+		// удаляет из списка меток поста все метки, которые содержатся в списке labelsToRemove
+		existingPost.getLabels().removeIf(labelsToRemove::contains);
+		
+		//оставляет в списке меток поста только те метки, которые содержатся в значениях карты existingLabelMap
+		existingPost.getLabels().retainAll(existingLabelMap.values());
+		
+		//добавляет в список меток поста все новые метки из списка newLabels
+		existingPost.getLabels().addAll(newLabels);
+		
 		existingPost.setContent(content);
 		existingPost.setUpdated(new Date());
 		existingPost.setPostStatus(PostStatus.ACTIVE);
-		existingPost.getLabels().retainAll(existingLabelMap.values());
-		existingPost.getLabels().addAll(newLabels);
 		
 		postController.updatePost(existingPost);
 		System.out.println("Пост обновлен.");
@@ -159,6 +150,9 @@ public class PostView {
 		postController.deletePost(postId);
 		System.out.println("Пост удален.");
 	}
+	
+	
+	//////////////////////////////////////////////////////////////////////
 	
 	private List<Label> getLabels() {
 		List<Label> labels = new ArrayList<>();
@@ -196,6 +190,35 @@ public class PostView {
 			System.out.println("Выбранный писатель: " + writer.getFirstname() + " " + writer.getLastname());
 		}
 		return writer;
+	}
+	
+	private List<Label> getLabelsToRemove(List<Label> existingLabels) {
+		List<Label> labelsToRemove = new ArrayList<>();
+		
+		boolean removeMoreLabels = true;
+		
+		while (removeMoreLabels) {
+			System.out.println("Хотите удалить какие-либо метки? (да/нет)");
+			if ("да".equalsIgnoreCase(scanner.nextLine())) {
+				System.out.println("Введите ID метки, которую хотите удалить:");
+				Long labelIdToRemove = scanner.nextLong();
+				scanner.nextLine();
+				
+				Label labelToRemove = existingLabels.stream()
+						.filter(label -> label.getId().equals(labelIdToRemove))
+						.findFirst()
+						.orElse(null);
+				
+				if (labelToRemove != null) {
+					labelsToRemove.add(labelToRemove);
+				} else {
+					System.out.println("Метка с ID " + labelIdToRemove + " не найдена.");
+				}
+			} else {
+				removeMoreLabels = false;
+			}
+		}
+		return labelsToRemove;
 	}
 }
 
