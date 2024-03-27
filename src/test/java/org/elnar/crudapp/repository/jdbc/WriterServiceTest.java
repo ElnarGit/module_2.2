@@ -42,7 +42,7 @@ public class WriterServiceTest {
 	
 	@Test
 	void testGetById() {
-		when(writerRepository.getById(1L)).thenReturn(testWriter);
+		when(writerRepository.getById(anyLong())).thenReturn(testWriter);
 		
 		Writer writer = writerService.getWriterById(1L);
 		
@@ -70,7 +70,7 @@ public class WriterServiceTest {
 	
 	@Test
 	void testSaveWriter() {
-		when(writerRepository.save(testWriter)).thenReturn(testWriter);
+		when(writerRepository.save(any(Writer.class))).thenReturn(testWriter);
 		
 		Writer writer = writerService.saveWriter(testWriter);
 		
@@ -92,7 +92,7 @@ public class WriterServiceTest {
 				.writerStatus(WriterStatus.ACTIVE)
 				.build();
 		
-		when(writerRepository.update(updatedWriter)).thenReturn(updatedWriter);
+		when(writerRepository.update(any(Writer.class))).thenReturn(updatedWriter);
 		
 		Writer writer = writerService.updateWriter(updatedWriter);
 		

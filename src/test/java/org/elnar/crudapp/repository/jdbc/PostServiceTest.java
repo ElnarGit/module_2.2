@@ -44,7 +44,7 @@ public class PostServiceTest {
 	
 	@Test
 	void  testGetById(){
-		when(postRepository.getById(1L)).thenReturn(testPost);
+		when(postRepository.getById(anyLong())).thenReturn(testPost);
 		
 		Post post = postService.getPostById(1L);
 		
@@ -70,7 +70,7 @@ public class PostServiceTest {
 	
 	@Test
 	void testSavePost() {
-		when(postRepository.save(testPost)).thenReturn(testPost);
+		when(postRepository.save(any(Post.class))).thenReturn(testPost);
 		
 		Post post = postService.savePost(testPost);
 		
@@ -90,7 +90,7 @@ public class PostServiceTest {
 				.postStatus(PostStatus.ACTIVE)
 				.build();
 		
-		when(postRepository.update(updatedPost)).thenReturn(updatedPost);
+		when(postRepository.update(any(Post.class))).thenReturn(updatedPost);
 		
 		Post post = postService.updatePost(updatedPost);
 		

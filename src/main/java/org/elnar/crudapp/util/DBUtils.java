@@ -1,7 +1,5 @@
 package org.elnar.crudapp.util;
 
-import org.elnar.crudapp.exception.JdbcRepositoryException;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.*;
@@ -26,7 +24,8 @@ public class DBUtils {
 				
 				connection = DriverManager.getConnection(url, username, password);
 			} catch (IOException | ClassNotFoundException | SQLException e) {
-				throw new JdbcRepositoryException("Ошибка выполнения SQL-запроса", e);
+				e.printStackTrace();
+				System.exit(1);
 			}
 		}
 		return connection;

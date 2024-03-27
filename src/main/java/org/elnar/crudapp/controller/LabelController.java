@@ -19,7 +19,7 @@ public class LabelController {
 	}
 	
 	public void createLabel(Label label){
-		labelService.savelabel(label);
+		labelService.saveLabel(label);
 	}
 	
 	public void updateLabel(Label updateLabel){

@@ -18,7 +18,7 @@ public class LabelService {
 		return labelRepository.getAll();
 	}
 	
-	public Label savelabel(Label label){
+	public Label saveLabel(Label label){
 		return labelRepository.save(label);
 	}
 	

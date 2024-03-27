@@ -16,8 +16,6 @@ import org.elnar.crudapp.view.LabelView;
 import org.elnar.crudapp.view.PostView;
 import org.elnar.crudapp.view.WriterView;
 
-import java.util.Scanner;
-
 public class ApplicationContext {
 	private final WriterRepository writerRepository = new JdbcWriterRepositoryImpl();
 	private final PostRepository postRepository = new JdbcPostRepositoryImpl();
@@ -35,34 +33,15 @@ public class ApplicationContext {
 	private final PostView postView = new PostView(postController, writerController, labelController);
 	private final LabelView labelView = new LabelView(labelController);
 	
-	private final Scanner scanner = new Scanner(System.in);
-	
-	public void start() {
-		System.out.println("Выберите опцию:");
-		System.out.println("1. Писатель");
-		System.out.println("2. Пост");
-		System.out.println("3. Метка");
-		
-		int choice = scanner.nextInt();
-		scanner.nextLine();
-		
-		switch (choice) {
-			case 1 -> writerRun();
-			case 2 -> postRun();
-			case 3 -> labelRun();
-			default -> System.out.println("Неверный выбор");
-		}
-	}
-	
-	private void writerRun() {
+	public void writerRun() {
 		writerView.run();
 	}
 	
-	private void postRun() {
+	public void postRun() {
 		postView.run();
 	}
 	
-	private void labelRun() {
+	public void labelRun() {
 		labelView.run();
 	}
 }

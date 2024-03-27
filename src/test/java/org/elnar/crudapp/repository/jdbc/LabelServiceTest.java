@@ -41,7 +41,7 @@ public class LabelServiceTest {
 	
 	@Test
 	void  testGetById(){
-		when(labelRepository.getById(1L)).thenReturn(testLabel);
+		when(labelRepository.getById(anyLong())).thenReturn(testLabel);
 		
 		Label label = labelService.getLabelById(1L);
 		
@@ -67,9 +67,9 @@ public class LabelServiceTest {
 	
 	@Test
 	void testSaveLabel() {
-		when(labelRepository.save(testLabel)).thenReturn(testLabel);
+		when(labelRepository.save(any(Label.class))).thenReturn(testLabel);
 		
-		Label label = labelService.savelabel(testLabel);
+		Label label = labelService.saveLabel(testLabel);
 		
 		assertNotNull(label);
 		assertEquals("Test name", label.getName());
@@ -86,7 +86,7 @@ public class LabelServiceTest {
 				.labelStatus(LabelStatus.ACTIVE)
 				.build();
 		
-		when(labelRepository.update(updatedLabel)).thenReturn(updatedLabel);
+		when(labelRepository.update(any(Label.class))).thenReturn(updatedLabel);
 		
 		Label label = labelService.updateLabel(updatedLabel);
 		
