@@ -24,7 +24,7 @@ public class DBUtils {
 				
 				connection = DriverManager.getConnection(url, username, password);
 			} catch (IOException | ClassNotFoundException | SQLException e) {
-				e.printStackTrace();
+				System.out.println("Ошибка при подключение: " + e);
 				System.exit(1);
 			}
 		}
